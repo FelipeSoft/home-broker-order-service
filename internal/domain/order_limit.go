@@ -1,14 +1,21 @@
 package domain
 
 type OrderLimit struct {
-	min_price float64
-	max_price float64
+	MinPrice float64
+	MaxPrice float64
 	*Order
 }
 
-func NewOrderLimit(order *Order, min_price, max_price float64) *OrderLimit {
+type OrderLimitDTO struct {
+	MinPrice float64  `json:"min_price"`
+	MaxPrice float64  `json:"max_price"`
+	Order    OrderDTO `json:"order"`
+}
+
+func NewOrderLimit(order *Order, MinPrice, MaxPrice float64) *OrderLimit {
 	return &OrderLimit{
-		min_price: min_price,
-		max_price: max_price,
+		MinPrice: MinPrice,
+		MaxPrice: MaxPrice,
+		Order:    order,
 	}
 }

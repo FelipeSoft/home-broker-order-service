@@ -3,63 +3,56 @@ package domain
 import "fmt"
 
 type Order struct {
-	ticker   string
-	quantity float64
-	price    float64
+	Ticker   string
+	Quantity float64
+	Price    float64
 	total    float64
-	// status -> open | in process | canceled | shipped complete
+}
+
+type OrderDTO struct {
+	Ticker   string  `json:"ticker"`
+	Quantity float64 `json:"quantity"`
+	Price    float64 `json:"price"`
 }
 
 func NewOrder(ticker string, quantity, price float64) (*Order, error) {
 	if quantity <= 0 || price <= 0 {
-		return nil, fmt.Errorf("order quantity and price must be positive values")
+		return nil, fmt.Errorf("order ticker quantity and price must be positive values")
 	}
 	order := &Order{
-		ticker:   ticker,
-		quantity: quantity,
-		price:    price,
+		Ticker:   ticker,
+		Quantity: quantity,
+		Price:    price,
 	}
 	order.calculateOrderTotal()
 	return order, nil
 }
 
-func (o *Order) ExecuteOrder() error {
+func (o *Order) CheckAvailableBalance(balance float64) error {
+	if o.total < balance {
+		return fmt.Errorf("insufficient balance for transaction")
+	}
 	return nil
 }
 
 func (o *Order) ChangeOrderQuantity(quantity float64) error {
 	if quantity <= 0 {
-		return fmt.Errorf("order quantity must be positive value")
+		return fmt.Errorf("order ticker quantity must be positive value")
 	}
-	o.quantity = quantity
+	o.Quantity = quantity
+	o.calculateOrderTotal()
 	return nil
 }
 
 func (o *Order) ChangeOrderPrice(price float64) error {
 	if price <= 0 {
-		return fmt.Errorf("order price must be positive value")
+		return fmt.Errorf("order ticker price must be positive value")
 	}
-	o.price = price
+	o.Price = price
+	o.calculateOrderTotal()
 	return nil
 }
 
-func (o *Order) calculateOrderTotal() float64 {
-	total := o.price * o.quantity
-	return total
-}
-
-func (o *Order) Ticker() string {
-	return o.ticker
-}
-
-func (o *Order) Price() float64 {
-	return o.price
-}
-
-func (o *Order) Quantity() float64 {
-	return o.quantity
-}
-
-func (o *Order) Total() float64 {
-	return o.total
+func (o *Order) calculateOrderTotal() {
+	o.total = o.Price * o.Quantity
 }
