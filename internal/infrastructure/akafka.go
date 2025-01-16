@@ -12,7 +12,7 @@ func Consume(topics []string, servers string, groupId string, msgChan chan *kafk
 		"auto.offset.reset": "earliest",
 	})
 	if err != nil {
-		log.Fatalf(err)
+		log.Fatalf(err.Error())
 	}
 	kafkaConsumer.SubscribeTopics(topics, nil)
 	for {
