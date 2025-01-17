@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+option go_package = "github.com/FelipeSoft/home-broker-order-service/internal/infrastructure/grpc/proto";
+
+package limit_order_service;
+
+import "google/protobuf/empty.proto";
+
+service LimitOrderService {
+  rpc BuyOrderByLimitValue(BuyOrderByLimitValueRequest)
+    returns (google.protobuf.Empty) {}
+  rpc SellOrderByLimitValue(SellOrderByLimitValueRequest)
+    returns (google.protobuf.Empty) {}
+}
+
+message BuyOrderByLimitValueRequest {
+  string ticker = 1;
+  float min_price = 2;
+  float max_price = 3;
+  float quantity = 4;
+}
+
+message SellOrderByLimitValueRequest {
+  string ticker = 1;
+  float min_price = 2;
+  float max_price = 3;
+  float quantity = 4;
+}
