@@ -6,12 +6,12 @@ import (
 
 type Order struct {
 	Ticker   string
-	Quantity float32
-	Price    float32
-	total    float32
+	Quantity float64
+	Price    float64
+	total    float64
 }
 
-func NewOrder(ticker string, quantity, price float32) (*Order, error) {
+func NewOrder(ticker string, quantity, price float64) (*Order, error) {
 	if quantity <= 0 || price <= 0 {
 		return nil, fmt.Errorf("order ticker 'quantity' and 'price' must be positive values")
 	}
@@ -24,14 +24,14 @@ func NewOrder(ticker string, quantity, price float32) (*Order, error) {
 	return order, nil
 }
 
-func (o *Order) CheckAvailableBalance(balance float32) error {
+func (o *Order) CheckAvailableBalance(balance float64) error {
 	if o.total < balance {
 		return fmt.Errorf("insufficient balance for transaction")
 	}
 	return nil
 }
 
-func (o *Order) ChangeOrderQuantity(quantity float32) error {
+func (o *Order) ChangeOrderQuantity(quantity float64) error {
 	if quantity <= 0 {
 		return fmt.Errorf("order ticker 'quantity' must be positive value")
 	}
@@ -40,7 +40,7 @@ func (o *Order) ChangeOrderQuantity(quantity float32) error {
 	return nil
 }
 
-func (o *Order) ChangeOrderPrice(price float32) error {
+func (o *Order) ChangeOrderPrice(price float64) error {
 	if price <= 0 {
 		return fmt.Errorf("order ticker 'price' must be positive value")
 	}

@@ -27,8 +27,8 @@ func NewMarketOrderService(kafkaServers string) *MarketOrderService {
 
 func (s *MarketOrderService) BuyOrderByMarketValue(ctx context.Context, req *proto.BuyOrderByMarketValueRequest) (*emptypb.Empty, error) {
 	ticker := req.GetTicker()
-	quantity := req.GetQuantity()
-	price := req.GetPrice()
+	quantity := float64(req.GetQuantity())
+	price := float64(req.GetPrice())
 
 	order, err := domain.NewOrder(ticker, quantity, price)
 	if err != nil {
@@ -37,14 +37,14 @@ func (s *MarketOrderService) BuyOrderByMarketValue(ctx context.Context, req *pro
 
 	marketOrder := domain.NewMarketOrder(order)
 	fmt.Println(marketOrder)
-
-	marketOrderSerialized, err := json.Marshal(marketOrder)
+    
+    marketOrderSerialized, err := json.Marshal(marketOrder)
 	if err != nil {
 		log.Printf("Error on market order serializing: %s", err.Error())
 	}
 
 	// Send market order to Apache Kafka topic responsible for Matching Engine method.
-	go akafka.Produce("matching_engine_topic", s.kafkaServers, []byte(marketOrderSerialized))
+    go akafka.Produce("matching_engine_topic", s.kafkaServers, []byte(marketOrderSerialized))
 
 	return &emptypb.Empty{}, nil
 }
