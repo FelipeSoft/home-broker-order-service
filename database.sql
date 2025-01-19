@@ -1,0 +1,17 @@
+CREATE DATABASE order_service_db;
+USE order_service_db;
+
+CREATE TABLE orders (
+    id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT, 
+    user_id BINARY(16) NOT NULL,
+    ticker VARCHAR(10) NOT NULL,
+    quantity DECIMAL(18, 4) NOT NULL,
+    ticker_price DECIMAL(18, 4) NOT NULL,
+    total DECIMAL(18, 4) NOT NULL,
+    type ENUM('BUY', 'SELL') NOT NULL,
+    min_price DECIMAL(18, 4) NULL,
+    max_price DECIMAL(18, 4) NULL,
+    status ENUM('PENDING', 'FILLED', 'CANCELED') NOT NULL DEFAULT 'PENDING',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
