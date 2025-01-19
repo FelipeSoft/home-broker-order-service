@@ -8,21 +8,23 @@ import "google/protobuf/empty.proto";
 
 service LimitOrderService {
   rpc BuyOrderByLimitValue(BuyOrderByLimitValueRequest)
-    returns (google.protobuf.Empty) {}
+      returns (google.protobuf.Empty) {}
   rpc SellOrderByLimitValue(SellOrderByLimitValueRequest)
-    returns (google.protobuf.Empty) {}
+      returns (google.protobuf.Empty) {}
 }
 
 message BuyOrderByLimitValueRequest {
   string ticker = 1;
-  float min_price = 2;
-  float max_price = 3;
-  float quantity = 4;
+  string min_price = 2;
+  string max_price = 3;
+  string quantity = 4;
+  int64 user_id = 5;
 }
 
 message SellOrderByLimitValueRequest {
   string ticker = 1;
-  float min_price = 2;
-  float max_price = 3;
-  float quantity = 4;
+  string min_price = 2;
+  string max_price = 3;
+  string quantity = 4;
+  int64 user_id = 5;
 }

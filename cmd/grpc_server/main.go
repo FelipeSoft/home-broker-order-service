@@ -2,21 +2,29 @@ package main
 
 import (
 	"context"
-	"github.com/FelipeSoft/home-broker-order-service/internal/application/grpc/service"
-	"github.com/FelipeSoft/home-broker-order-service/internal/infrastructure/akafka"
-	proto_limit_order "github.com/FelipeSoft/home-broker-order-service/internal/infrastructure/grpc/proto/limit_order"
-	proto_market_order "github.com/FelipeSoft/home-broker-order-service/internal/infrastructure/grpc/proto/market_order"
-	"github.com/confluentinc/confluent-kafka-go/kafka"
-	"google.golang.org/grpc"
+	"database/sql"
 	"log"
 	"net"
 	"os"
 	"os/signal"
 	"sync"
 	"syscall"
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/FelipeSoft/home-broker-order-service/internal/application/grpc/service"
+	"github.com/FelipeSoft/home-broker-order-service/internal/infrastructure/akafka"
+	proto_limit_order "github.com/FelipeSoft/home-broker-order-service/internal/infrastructure/grpc/proto/limit_order"
+	proto_market_order "github.com/FelipeSoft/home-broker-order-service/internal/infrastructure/grpc/proto/market_order"
+	"github.com/FelipeSoft/home-broker-order-service/internal/infrastructure/mysql"
+	"github.com/confluentinc/confluent-kafka-go/kafka"
+	"github.com/joho/godotenv"
+	"google.golang.org/grpc"
 )
 
 func main() {
+	err := godotenv.Load("./../../.env")
+	if err != nil {
+		log.Fatalf("Error during the .env file loading: %s", err.Error())
+	}
 	wg := &sync.WaitGroup{}
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
@@ -27,8 +35,15 @@ func main() {
 		log.Fatalf("Error on TCP listening: %s", err.Error())
 	}
 
+	db, err := sql.Open("mysql", os.Getenv("MYSQL_SERVER"))
+	if err != nil {
+		log.Fatalf("Error during MYSQL Connection: %s", err.Error())
+	}
+	
+	orderRepositoryMySql := mysql.NewOrderRepositoryMySql(db)
+
 	grpcServer := grpc.NewServer()
-	marketOrderService := service.NewMarketOrderService("localhost:9092", wg)
+	marketOrderService := service.NewMarketOrderService("localhost:9092", wg, orderRepositoryMySql)
 	proto_market_order.RegisterMarketOrderServiceServer(grpcServer, marketOrderService)
 
 	limitOrderService := service.NewLimitOrderService("localhost:9092", wg)

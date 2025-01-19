@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"sync"
 
@@ -29,11 +30,12 @@ func NewLimitOrderService(kafkaServers string, wg *sync.WaitGroup) *LimitOrderSe
 
 func (s *LimitOrderService) BuyOrderByLimitValue(ctx context.Context, req *proto.BuyOrderByLimitValueRequest) (*emptypb.Empty, error) {
 	ticker := req.GetTicker()
-	quantity := float64(req.GetQuantity())
-	minPrice := float64(req.GetMinPrice())
-	maxPrice := float64(req.GetMaxPrice())
+	quantity := req.GetQuantity()
+	minPrice := req.GetMinPrice()
+	maxPrice := req.GetMaxPrice()
+	userId := fmt.Sprint(req.GetUserId())
 
-	order, err := domain.NewOrder(ticker, quantity, minPrice, &minPrice, &maxPrice, domain.OrderTypeBuy)
+	order, err := domain.NewOrder(ticker, quantity, minPrice, &minPrice, &maxPrice, domain.OrderTypeBuy, userId)
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "Buy order error: %s", err.Error())
 	}
@@ -54,11 +56,12 @@ func (s *LimitOrderService) BuyOrderByLimitValue(ctx context.Context, req *proto
 
 func (s *LimitOrderService) SellOrderByLimitValue(ctx context.Context, req *proto.SellOrderByLimitValueRequest) (*emptypb.Empty, error) {
 	ticker := req.GetTicker()
-	quantity := float64(req.GetQuantity())
-	minPrice := float64(req.GetMinPrice())
-	maxPrice := float64(req.GetMaxPrice())
+	quantity := req.GetQuantity()
+	minPrice := req.GetMinPrice()
+	maxPrice := req.GetMaxPrice()
+	userId := fmt.Sprint(req.GetUserId())
 
-	order, err := domain.NewOrder(ticker, quantity, maxPrice, &minPrice, &maxPrice, domain.OrderTypeSell)
+	order, err := domain.NewOrder(ticker, quantity, minPrice, &minPrice, &maxPrice, domain.OrderTypeSell, userId)
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "Sell order error: %s", err.Error())
 	}

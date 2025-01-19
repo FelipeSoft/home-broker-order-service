@@ -2,6 +2,9 @@ package domain
 
 import (
 	"fmt"
+	"log"
+
+	"github.com/shopspring/decimal"
 )
 
 type OrderType string
@@ -20,30 +23,38 @@ const (
 )
 
 type Order struct {
-	ID       int64
+	ID       *int64
 	UserId   string
 	Ticker   string
-	Quantity float64
-	Price    float64
-	MinPrice *float64
-	MaxPrice *float64
-	Total    float64
+	Quantity decimal.Decimal
+	Price    decimal.Decimal
+	MinPrice *decimal.Decimal
+	MaxPrice *decimal.Decimal
+	Total    decimal.Decimal
 	Type     OrderType
 	Status   OrderStatus
 }
 
-func NewOrder(ticker string, quantity, price float64, minPrice, maxPrice *float64, orderType OrderType) (*Order, error) {
-	if quantity <= 0 || price < 0 {
-		return nil, fmt.Errorf("order ticker 'quantity' and 'price' must be positive values")
+func NewOrder(ticker string, quantity, price string, minPrice, maxPrice *string, orderType OrderType, userId string) (*Order, error) {
+	log.Printf("On Entity Order: %s", price)
+	decimalQuantity, err := decimal.NewFromString(quantity)
+	if err != nil {
+		return nil, fmt.Errorf("decimal order quantity error: %s", err.Error())
 	}
+
+	decimalPrice, err := decimal.NewFromString(price)
+	if err != nil {
+		return nil, fmt.Errorf("decimal order price error: %s", err.Error())
+	}
+
 	order := &Order{
 		Ticker:   ticker,
-		Quantity: quantity,
-		Price:    price,
+		Quantity: decimalQuantity,
+		Price:    decimalPrice,
 		Type:     orderType,
 		Status:   OrderStatusPending,
+		UserId:   userId,
 	}
-	order.calculateOrderTotal()
 	return order, nil
 }
 
@@ -67,15 +78,4 @@ func (o *Order) Cancel() error {
 	}
 	o.Status = OrderStatusCanceled
 	return nil
-}
-
-func (o *Order) CheckAvailableBalance(balance float64) error {
-	if o.Total < balance {
-		return fmt.Errorf("insufficient balance for transaction")
-	}
-	return nil
-}
-
-func (o *Order) calculateOrderTotal() {
-	o.Total = o.Price * o.Quantity
 }
